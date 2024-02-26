@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Juego del Ahorcado</title>
+    <style>
+        
+        body {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+            font-family: Arial, sans-serif;
+        }
+        h1 {
+            margin-bottom: 20px;
+            font-family: Arial, sans-serif;
+            color: rgb(26, 86, 97);
+        }
+        #canvas {
+            margin-top: 20px;
+            background-color: rgb(188, 232, 250);
+        }
+        #letterButtons {
+            margin-top: 20px;
+            display: flex;
+        }
+        button {
+            margin: 5px;
+            padding: 5px 10px;
+            font-size: 16px;
+            border: none;
+            cursor: pointer;
+            color: #ffffff;
+            background-color: #21dbdb;
+        }
+        button:hover {
+            background-color: #04c091;
+        }
+    </style>
+</head>
+<body bgcolor="white">
+    <h1>Juego del Ahorcado</h1>
+    <canvas id="canvas" width="600" height="400"></canvas>
+    <div id="wordDisplay"></div>
+    <div id="guessesDisplay"></div>
+    <div id="letterButtons"></div>
+
+    
+    <button id="refresh">Jugar de nuevo</button>
+
+    <script>
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+        const words = ['BUCLE', 'VARIABLE', 'HTML', 'CSS', 'JAVASCRIPT', 'FUNCION', 'CLASE', 'CONDICION', 'INTERFAZ', 'COMPILACION', 'CADENA', 'JAVAEE', 'MATRIZ', 'HERENCIA', 'ALGORITMO'];
+        const chosenWord = words[Math.floor(Math.random() * words.length)];
+        const wordDisplay = document.getElementById('wordDisplay');
+        const guessesDisplay = document.getElementById('guessesDisplay');
+
+        let guessedLetters = [];
+        let wrongAttempts = 1;
+
+        function drawHangman() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            if (wrongAttempts >= 1) {
+                ctx.beginPath();
+                ctx.moveTo(100, 50);
+                ctx.lineTo(100, 300);
+                ctx.moveTo(100, 50);
+                ctx.lineTo(215, 50);
+                ctx.moveTo(215, 50);
+                ctx.lineTo(215, 90);
+                ctx.stroke();
+            }
+            
+            if (wrongAttempts >= 2) {
+                ctx.beginPath();
+                ctx.arc(215, 115, 25, 0, Math.PI * 2);
+                ctx.stroke();
+            }
+
+            if (wrongAttempts >= 3) {
+                ctx.beginPath();
+                ctx.moveTo(215, 140);
+                ctx.lineTo(215, 225);
+                ctx.stroke();
+            }
+
+            if (wrongAttempts >= 4) {
+                ctx.beginPath();
+                ctx.moveTo(215, 155);
+                ctx.lineTo(150, 155);
+                ctx.stroke();
+            }
+
+            if (wrongAttempts >= 5) {
+                ctx.beginPath();
+                ctx.moveTo(215, 155);
+                ctx.lineTo(275, 155);
+                ctx.stroke();
+            }
+
+            if (wrongAttempts >= 6) {
+                ctx.beginPath();
+                ctx.moveTo(160, 275);
+                ctx.lineTo(215, 225);
+                ctx.stroke();
+            }
+
+            if (wrongAttempts >= 7) {
+                ctx.beginPath();
+                ctx.moveTo(270, 275);
+                ctx.lineTo(215, 225);
+                ctx.stroke();
+            }
+            
+        }
+        
+
+        function updateWordDisplay() {
+            let display = '';
+            for (const letter of chosenWord) {
+                if (guessedLetters.includes(letter)) {
+                    display += letter;
+                } else {
+                    display += ' _ ';
+                }
+            }
+            wordDisplay.textContent = display;
+        }
+
+        function updateGuessesDisplay() {
+            guessesDisplay.textContent = `Letras incorrectas: ${guessedLetters.join(', ')}`;
+        }
+
+        function guessLetter(letter) {
+            if (!guessedLetters.includes(letter)) {
+                guessedLetters.push(letter);
+
+                if (!chosenWord.includes(letter)) {
+                    wrongAttempts++;
+                    drawHangman();
+                }
+
+                updateWordDisplay();
+                updateGuessesDisplay();
+
+                if (wrongAttempts === 7) {
+                    alert('PERDISTE! La palabra era: ' + chosenWord);
+                } else if (!wordDisplay.textContent.includes('_')) {
+                    alert('GANASTE! La palabra era: ' + chosenWord);
+                }
+            }
+        }
+
+        drawHangman();
+        updateWordDisplay();
+        updateGuessesDisplay();
+
+        document.addEventListener('keydown', (event) => {
+            const letter = event.key.toLowerCase();
+            if (letter.match(/[a-z]/) && guessedLetters.indexOf(letter) === -1) {
+                guessLetter(letter);
+            }
+        });
+
+        function createLetterButtons() {
+            const alphabet = 'ABCDEFGHIJKLMNÑOPQRSTUVWXYZ';
+            const letterButtonsDiv = document.getElementById('letterButtons');
+
+            for (const letter of alphabet) {
+                const button = document.createElement('button');
+                button.textContent = letter;
+                button.addEventListener('click', () => guessLetter(letter));
+                letterButtonsDiv.appendChild(button);
+            }
+        }
+
+        createLetterButtons();
+    </script>
+</body>
+</html>
